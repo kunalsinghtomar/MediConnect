@@ -1,0 +1,198 @@
+// This is the database schema file.
+// It defines the structure of all data that will be stored in the database.
+// Prisma uses this file to create and manage the database tables.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model - stores information about all users (doctors and patients)
+// This is created automatically when they login with Google
+model User {
+  id                    String          @id @default(cuid())
+  name                  String?
+  email                 String?         @unique
+  emailVerified         DateTime?
+  image                 String?
+  role                  String?         // "doctor" or "patient"
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  // User's accounts (Google login info)
+  accounts              Account[]
+  // User's sessions
+  sessions              Session[]
+  // Doctor profile (if user is a doctor)
+  doctorProfile         DoctorProfile?
+  // Patient profile (if user is a patient)
+  patientProfile        PatientProfile?
+  // Cases submitted by patient (created by this user)
+  cases                 Case[]
+}
+
+// Account model - stores Google OAuth information
+// This is used for logging in with Google
+model Account {
+  id                 String          @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+// Session model - stores user login sessions
+model Session {
+  id           String      @id @default(cuid())
+  sessionToken String      @unique
+  userId       String
+  expires      DateTime
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// VerificationToken model - for email verification if needed
+model VerificationToken {
+  identifier String
+  token      String      @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Doctor Profile - stores detailed information about doctors
+// This is filled in by the doctor during registration
+model DoctorProfile {
+  id                        String          @id @default(cuid())
+  userId                    String          @unique
+  user                      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Basic information
+  fullName                  String
+  age                       Int
+  gender                    String          // "male", "female", "other"
+  phoneNumber               String
+  profilePhoto              String?         // URL to uploaded photo
+
+  // Clinic information
+  clinicName                String
+  clinicAddress             String
+  city                      String
+  state                     String
+  pincode                   String
+  consultationLocation      String          // "in-person", "online", "both"
+
+  // Professional information
+  medicalQualification      String          // "MBBS", "MD", etc.
+  specialization            String          // "Cardiology", "Pediatrics", etc.
+  medicalRegistrationNumber String
+  medicalCouncil            String
+  yearsOfExperience         Int
+  areasOfExpertise          String          // Comma-separated list
+  commonConditionsTreated   String          // Comma-separated list
+  consultationType          String          // "in-person", "online", "both"
+
+  // Languages spoken
+  languages                 String          // Comma-separated list (e.g., "English, Hindi, Marathi")
+
+  // Verification information
+  verificationDocument      String?         // URL to uploaded document
+  verificationStatus        String          @default("pending")  // "pending", "verified", "rejected"
+  rejectionReason           String?         // Reason if rejected
+
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+
+  // Cases assigned to this doctor
+  cases                     Case[]          @relation("DoctorCases")
+}
+
+// Patient Profile - stores basic information about patients
+// Kept simple so patients can sign up quickly
+model PatientProfile {
+  id                        String          @id @default(cuid())
+  userId                    String          @unique
+  user                      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Basic information
+  fullName                  String
+  dateOfBirth               DateTime
+  gender                    String          // "male", "female", "other"
+  phoneNumber               String
+  city                      String
+
+  // Preferences
+  preferredLanguage         String          // e.g., "English", "Hindi", "Marathi"
+
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+
+  // Cases submitted by this patient
+  cases                     Case[]
+}
+
+// Case model - stores patient medical cases/complaints
+// Patients submit cases, doctors view them and take action
+model Case {
+  id                        String          @id @default(cuid())
+  
+  // Patient who submitted the case
+  patientId                 String
+  patient                   PatientProfile  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  // Doctor assigned to this case (if any)
+  doctorId                  String?
+  doctor                    DoctorProfile?  @relation("DoctorCases", fields: [doctorId], references: [id])
+  
+  // Creator of case (the user who submitted it)
+  createdBy                 String
+  createdByUser             User            @relation(fields: [createdBy], references: [id])
+  
+  // Case information
+  title                     String          // Brief title of the case
+  description               String          // Detailed description of symptoms/problems
+  symptoms                  String          // Comma-separated symptoms
+  duration                  String          // How long has this been happening
+  severity                  String          // "mild", "moderate", "severe"
+  attachments               String?         // URLs to uploaded images/documents
+  
+  // Case status
+  status                    String          @default("open")  // "open", "assigned", "in_progress", "resolved", "closed"
+  priority                  String          @default("normal") // "low", "normal", "urgent"
+  
+  // Metadata
+  language                  String          // Language the case was submitted in
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+  
+  // Notes added by doctor
+  notes                     CaseNote[]
+}
+
+// Case Note - stores notes added by doctors on cases
+model CaseNote {
+  id                        String          @id @default(cuid())
+  caseId                    String
+  case                      Case            @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  
+  // Note information
+  content                   String
+  createdBy                 String
+  
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+}
