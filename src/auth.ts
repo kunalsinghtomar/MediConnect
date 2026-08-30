@@ -7,6 +7,11 @@ import { prisma } from "@/lib/prisma";
 // Simple idea: when user signs in, we check their email in the database and know if they are patient or doctor.
 
 export const authOptions: NextAuthOptions = {
+  // This keeps the login cookie secure in production.
+  // Vercel uses HTTPS, so the browser can keep the login session between reloads.
+  // On your local machine, this is still safe because we only use it in production.
+  useSecureCookies: process.env.NODE_ENV === "production",
+
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
