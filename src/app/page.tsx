@@ -50,7 +50,7 @@ export default function Home() {
   // If the user is still loading, show a simple loading screen.
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top_left,_rgba(187,247,208,0.9),_transparent_30%),linear-gradient(135deg,_#f0fdf4_0%,_#dcfce7_28%,_#f9fdf9_100%)] text-slate-800">
+      <div className="med-shell min-h-screen flex items-center justify-center">
         <div className="text-lg font-medium text-emerald-800">Loading...</div>
       </div>
     );
@@ -59,13 +59,13 @@ export default function Home() {
   // If the user is not logged in, show the normal landing page with login button.
   if (status === 'unauthenticated') {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(187,247,208,0.9),_transparent_30%),linear-gradient(135deg,_#f0fdf4_0%,_#dcfce7_28%,_#f9fdf9_100%)] text-slate-800">
+      <div className="med-shell min-h-screen">
         <nav className="sticky top-0 z-10 backdrop-blur-md bg-white/70 border-b border-emerald-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-lime-600 shadow-lg shadow-emerald-200 flex items-center justify-center">
-                  <span className="text-xl">✚</span>
+                <div className="med-mark">
+                  <span>+</span>
                 </div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-700 to-lime-700 bg-clip-text text-transparent">MediConnect</h1>
               </div>
@@ -119,14 +119,20 @@ export default function Home() {
             <div className="relative">
               <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-emerald-200/60 to-lime-200/60 blur-2xl" />
               <div className="relative overflow-hidden rounded-[2rem] border border-white/60 bg-white/70 p-6 shadow-[0_24px_80px_rgba(16,185,129,0.12)] backdrop-blur-xl">
-                <div className="rounded-[1.5rem] bg-gradient-to-br from-emerald-100 via-lime-50 to-white p-8 h-[440px] flex items-center justify-center">
-                  <div className="text-center space-y-4">
-                    <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-[2rem] bg-gradient-to-br from-emerald-500 to-lime-600 text-5xl shadow-xl shadow-emerald-200">🏥</div>
-                    <div>
-                      <p className="text-2xl font-bold text-slate-800">Healthcare Platform</p>
-                      <p className="mt-2 text-slate-600">Connecting Patients with Doctors</p>
-                    </div>
+                {/* This visual represents a doctor and patient meeting through MediConnect. */}
+                <div className="med-care-scene relative h-[440px] overflow-hidden rounded-[1.5rem] p-8">
+                  <div className="med-signal med-pulse absolute left-[18%] top-[22%] h-24 w-24 rounded-full border border-cyan-300/50" />
+                  <div className="med-signal absolute right-[16%] top-[34%] h-32 w-32 rounded-full border border-fuchsia-300/40" />
+                  <div className="absolute bottom-16 left-[20%] text-center">
+                    <div className="med-person med-doctor mx-auto"><span>+</span></div>
+                    <p className="mt-3 text-xs uppercase tracking-[0.28em] text-cyan-200">Verified doctor</p>
                   </div>
+                  <div className="absolute bottom-16 right-[20%] text-center">
+                    <div className="med-person med-patient mx-auto"><span>•</span></div>
+                    <p className="mt-3 text-xs uppercase tracking-[0.28em] text-fuchsia-200">Patient care</p>
+                  </div>
+                  <div className="absolute left-1/2 top-1/2 h-px w-32 -translate-x-1/2 bg-gradient-to-r from-cyan-300 to-fuchsia-300 shadow-[0_0_18px_rgba(99,230,255,0.9)]" />
+                  <p className="absolute bottom-5 left-0 right-0 text-center text-sm text-slate-300">One secure space for better care</p>
                 </div>
               </div>
             </div>

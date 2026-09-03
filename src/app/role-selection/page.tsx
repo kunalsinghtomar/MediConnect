@@ -74,7 +74,7 @@ export default function RoleSelection() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(191,219,254,0.9),_transparent_30%),linear-gradient(135deg,_#eff6ff_0%,_#eef2ff_30%,_#f8fbff_100%)] text-slate-800">
+    <div className="med-shell min-h-screen">
       <nav className="border-b border-sky-100 bg-white/70 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-3">

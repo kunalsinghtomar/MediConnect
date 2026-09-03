@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4fbf5;
-  --foreground: #163a2e;
+  --background: #050817;
+  --foreground: #f5f7ff;
+  --ink-muted: #9da8c7;
+  --cyan: #63e6ff;
+  --pink: #f58cff;
 }
 
 @theme inline {
@@ -22,5 +25,181 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), sans-serif;
 }
+
+/* This is the shared visual language for every MediConnect screen. */
+.med-shell {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(52, 211, 255, 0.12), transparent 25%),
+    radial-gradient(circle at 82% 70%, rgba(232, 91, 255, 0.1), transparent 28%),
+    linear-gradient(135deg, #050817 0%, #0a1028 48%, #080718 100%) !important;
+  color: #f5f7ff !important;
+}
+
+/* Fine lines and light streaks create the deep-space technology feeling from the reference. */
+.med-shell::before,
+.med-shell::after {
+  position: absolute;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+}
+
+.med-shell::before {
+  inset: -35% -10%;
+  background: repeating-linear-gradient(112deg, transparent 0 88px, rgba(99, 230, 255, 0.1) 89px 90px, transparent 91px 170px);
+  transform: rotate(-8deg);
+  opacity: 0.55;
+}
+
+.med-shell::after {
+  width: 44vw;
+  height: 44vw;
+  right: -15vw;
+  top: 8vh;
+  border: 1px solid rgba(245, 140, 255, 0.18);
+  border-radius: 50%;
+  box-shadow: 0 0 100px rgba(99, 230, 255, 0.08), inset 0 0 100px rgba(245, 140, 255, 0.06);
+}
+
+/* Existing cards, navigation bars, and form controls keep their layout but gain the new palette. */
+.med-shell nav,
+.med-shell [class*="bg-white"] {
+  background: rgba(10, 16, 40, 0.78) !important;
+  border-color: rgba(126, 156, 220, 0.22) !important;
+}
+
+.med-shell [class*="text-slate-900"],
+.med-shell [class*="text-slate-800"],
+.med-shell [class*="text-sky-950"],
+.med-shell [class*="text-sky-900"] {
+  color: #f5f7ff !important;
+}
+
+.med-shell [class*="text-slate-600"],
+.med-shell [class*="text-slate-500"],
+.med-shell [class*="text-sky-700"],
+.med-shell [class*="text-sky-900/80"] {
+  color: var(--ink-muted) !important;
+}
+
+.med-shell [class*="bg-clip-text"] {
+  background-image: none !important;
+  color: var(--cyan) !important;
+}
+
+.med-shell [class*="bg-emerald-50"],
+.med-shell [class*="bg-lime-50"],
+.med-shell [class*="bg-green-50"] {
+  background: rgba(19, 42, 76, 0.72) !important;
+  border-color: rgba(99, 230, 255, 0.3) !important;
+}
+
+.med-shell [class*="text-emerald"],
+.med-shell [class*="text-lime"] {
+  color: var(--cyan) !important;
+}
+
+.med-shell button[class*="bg-gradient"] {
+  background-image: linear-gradient(100deg, #087da6, #9b4eaa) !important;
+}
+
+.med-shell input,
+.med-shell textarea,
+.med-shell select {
+  background: rgba(17, 27, 58, 0.78) !important;
+  color: #f5f7ff !important;
+  border-color: rgba(126, 156, 220, 0.3) !important;
+}
+
+.med-shell input::placeholder,
+.med-shell textarea::placeholder {
+  color: #7d89aa;
+}
+
+.med-shell [class*="bg-sky-50"],
+.med-shell [class*="bg-indigo-50"],
+.med-shell [class*="bg-rose-50"] {
+  background: rgba(25, 38, 78, 0.7) !important;
+}
+
+.med-shell [class*="border-sky"],
+.med-shell [class*="border-indigo"] {
+  border-color: rgba(99, 230, 255, 0.24) !important;
+}
+
+.med-shell [class*="shadow-"] {
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* The small glowing mark is used instead of a generic emoji logo. */
+.med-mark {
+  display: inline-grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(99, 230, 255, 0.7);
+  border-radius: 50%;
+  color: var(--cyan);
+  box-shadow: 0 0 22px rgba(99, 230, 255, 0.38), inset 0 0 14px rgba(245, 140, 255, 0.18);
+  font-size: 1.2rem;
+}
+
+@keyframes med-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+.med-pulse {
+  animation: med-pulse 4s ease-in-out infinite;
+}
+
+.med-care-scene {
+  background:
+    linear-gradient(135deg, rgba(13, 29, 66, 0.96), rgba(15, 8, 40, 0.96)),
+    repeating-linear-gradient(115deg, transparent 0 36px, rgba(99, 230, 255, 0.16) 37px 38px, transparent 39px 82px);
+  border: 1px solid rgba(128, 159, 226, 0.35);
+  box-shadow: inset 0 0 70px rgba(99, 230, 255, 0.08), 0 0 55px rgba(245, 140, 255, 0.1);
+}
+
+.med-signal {
+  box-shadow: 0 0 30px rgba(99, 230, 255, 0.25), inset 0 0 25px rgba(245, 140, 255, 0.12);
+}
+
+.med-person {
+  position: relative;
+  width: 92px;
+  height: 138px;
+  border: 2px solid var(--cyan);
+  border-radius: 48% 48% 35% 35%;
+  background: linear-gradient(145deg, rgba(99, 230, 255, 0.24), rgba(245, 140, 255, 0.08));
+  box-shadow: 0 0 24px rgba(99, 230, 255, 0.4), inset 0 0 25px rgba(245, 140, 255, 0.17);
+}
+
+.med-person::before {
+  position: absolute;
+  top: -34px;
+  left: 21px;
+  width: 46px;
+  height: 46px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  content: "";
+  box-shadow: 0 0 18px currentColor;
+}
+
+.med-person span {
+  position: absolute;
+  top: 24px;
+  left: 36px;
+  color: currentColor;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.med-doctor { color: var(--cyan); transform: skewY(-3deg); }
+.med-patient { color: var(--pink); transform: skewY(3deg); }
