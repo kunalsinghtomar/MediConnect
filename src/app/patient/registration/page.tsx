@@ -3,10 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-
-// This is the patient registration page.
-// It is the form that appears after the user chooses "I am a patient".
-// Very simple idea: here we collect basic patient details and save them in the database.
+import { Header } from '@/components/Header';
 
 interface FormData {
   fullName: string;
@@ -30,18 +27,22 @@ export default function PatientRegistration() {
     preferredLanguage: 'English',
   });
 
-  // If user is not logged in, redirect to home
   if (status === 'unauthenticated') {
     router.push('/');
     return null;
   }
 
   if (status === 'loading') {
-    return <div className="min-h-screen flex items-center justify-center text-blue-950">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF7F2]">
+        <div className="text-center">
+          <div className="w-10 h-10 border-3 border-[#D9770E] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-[14px] text-[#555555]">Verifying patient session...</p>
+        </div>
+      </div>
+    );
   }
 
-  // This function updates the form every time the user types or selects an option.
-  // Example: when they type their name, the name field in the state also updates.
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -50,14 +51,11 @@ export default function PatientRegistration() {
     }));
   };
 
-  // This function sends the patient form data to the backend API.
-  // The backend then saves the data and updates the user's role to patient.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Send patient registration data to the backend
       const response = await fetch('/api/patient/registration', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -65,8 +63,7 @@ export default function PatientRegistration() {
       });
 
       if (response.ok) {
-        // Registration successful, redirect to patient dashboard
-        router.push('/patient/dashboard');
+        router.push('/patient/case-taking');
       } else {
         const error = await response.json();
         alert('Error: ' + error.message);
@@ -79,147 +76,145 @@ export default function PatientRegistration() {
   };
 
   return (
-    <div className="med-shell min-h-screen py-12">
-      <nav className="mb-12 border-b border-sky-100 bg-white/70 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 shadow-lg shadow-sky-200 text-xl text-white">✚</div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-sky-700 to-indigo-700 bg-clip-text text-transparent">MediConnect</h1>
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1A1A1A]">
+      <Header />
+
+      <main className="flex-1 max-w-2xl w-full mx-auto px-4 sm:px-6 py-10">
+        <div className="card p-6 sm:p-8 bg-white border border-[#E8E2D9] rounded-[8px]">
+          <div className="mb-6 pb-4 border-b border-[#E8E2D9]">
+            <div className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#0F6B4C] bg-[#E8F5EE] px-2.5 py-1 rounded-full border border-[#B7E1CD] mb-2">
+              <span>Patient Profile Registration</span>
+            </div>
+            <h1 className="font-heading text-[28px] font-semibold text-[#1A1A1A]">
+              Patient Demographic Registration
+            </h1>
+            <p className="mt-1 text-[14px] text-[#555555]">
+              Please register your baseline personal details before starting clinical case-taking.
+            </p>
           </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="fullName" className="block text-[14px] font-medium text-[#1A1A1A] mb-1.5">
+                Full Legal Name <span className="text-[#C0392B]">*</span>
+              </label>
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleInputChange}
+                placeholder="e.g. Ramesh Chandra Sharma"
+                required
+                className="w-full px-3.5 py-2.5 bg-white border border-[#E8E2D9] rounded-[8px] text-[16px] text-[#1A1A1A] focus:border-[#D9770E] focus:ring-2 focus:ring-[#D9770E]/20"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="dateOfBirth" className="block text-[14px] font-medium text-[#1A1A1A] mb-1.5">
+                Date of Birth <span className="text-[#C0392B]">*</span>
+              </label>
+              <input
+                type="date"
+                id="dateOfBirth"
+                name="dateOfBirth"
+                value={formData.dateOfBirth}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3.5 py-2.5 bg-white border border-[#E8E2D9] rounded-[8px] text-[16px] text-[#1A1A1A] focus:border-[#D9770E] focus:ring-2 focus:ring-[#D9770E]/20"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="gender" className="block text-[14px] font-medium text-[#1A1A1A] mb-1.5">
+                Gender <span className="text-[#C0392B]">*</span>
+              </label>
+              <select
+                id="gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3.5 py-2.5 bg-white border border-[#E8E2D9] rounded-[8px] text-[16px] text-[#1A1A1A] focus:border-[#D9770E] focus:ring-2 focus:ring-[#D9770E]/20"
+              >
+                <option value="">Select gender...</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="phoneNumber" className="block text-[14px] font-medium text-[#1A1A1A] mb-1.5">
+                Mobile Contact Number <span className="text-[#C0392B]">*</span>
+              </label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
+                placeholder="10-digit mobile number"
+                required
+                className="w-full px-3.5 py-2.5 bg-white border border-[#E8E2D9] rounded-[8px] text-[16px] text-[#1A1A1A] focus:border-[#D9770E] focus:ring-2 focus:ring-[#D9770E]/20"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="city" className="block text-[14px] font-medium text-[#1A1A1A] mb-1.5">
+                City / District of Residence <span className="text-[#C0392B]">*</span>
+              </label>
+              <input
+                type="text"
+                id="city"
+                name="city"
+                value={formData.city}
+                onChange={handleInputChange}
+                placeholder="e.g. Jaipur, Bengaluru, Varanasi"
+                required
+                className="w-full px-3.5 py-2.5 bg-white border border-[#E8E2D9] rounded-[8px] text-[16px] text-[#1A1A1A] focus:border-[#D9770E] focus:ring-2 focus:ring-[#D9770E]/20"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="preferredLanguage" className="block text-[14px] font-medium text-[#1A1A1A] mb-1.5">
+                Preferred Consultation Language <span className="text-[#C0392B]">*</span>
+              </label>
+              <select
+                id="preferredLanguage"
+                name="preferredLanguage"
+                value={formData.preferredLanguage}
+                onChange={handleInputChange}
+                className="w-full px-3.5 py-2.5 bg-white border border-[#E8E2D9] rounded-[8px] text-[16px] text-[#1A1A1A] focus:border-[#D9770E] focus:ring-2 focus:ring-[#D9770E]/20"
+              >
+                <option value="English">English</option>
+                <option value="Hindi">Hindi (हिन्दी)</option>
+                <option value="Sanskrit">Sanskrit (संस्कृतम्)</option>
+                <option value="Marathi">Marathi (मराठी)</option>
+                <option value="Tamil">Tamil (தமிழ்)</option>
+                <option value="Telugu">Telugu (తెలుగు)</option>
+                <option value="Kannada">Kannada (ಕನ್ನಡ)</option>
+                <option value="Bengali">Bengali (বাংলা)</option>
+                <option value="Gujarati">Gujarati (ગુજરાતી)</option>
+              </select>
+            </div>
+
+            <div className="pt-3">
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary w-full"
+              >
+                {loading ? 'Registering Demographic File...' : 'Complete Registration & Proceed'}
+              </button>
+            </div>
+
+            <p className="text-center text-[13px] text-[#555555]">
+              Fields with <span className="text-[#C0392B] font-semibold">*</span> are required for clinical identification under AYUSH EHR standards.
+            </p>
+          </form>
         </div>
-      </nav>
-
-      <div className="max-w-2xl mx-auto rounded-[2rem] border border-sky-100 bg-white/80 p-8 shadow-[0_24px_80px_rgba(14,116,144,0.08)] backdrop-blur-sm">
-        <div className="mb-8">
-          <p className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">Patient</p>
-          <h2 className="mt-4 text-3xl font-black text-sky-950">
-            Patient Registration
-          </h2>
-          <p className="mt-2 text-sky-900/80">
-            Tell us a bit about yourself so we can help you better
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="fullName" className="mb-1 block text-sm font-medium text-sky-950">
-              Full Name *
-            </label>
-            <input
-              type="text"
-              id="fullName"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleInputChange}
-              placeholder="Enter your full name"
-              required
-              className="w-full rounded-2xl border border-sky-100 bg-sky-50/60 px-4 py-3 text-slate-800 outline-none ring-0 transition focus:border-sky-400 focus:bg-white"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="dateOfBirth" className="mb-1 block text-sm font-medium text-sky-950">
-              Date of Birth *
-            </label>
-            <input
-              type="date"
-              id="dateOfBirth"
-              name="dateOfBirth"
-              value={formData.dateOfBirth}
-              onChange={handleInputChange}
-              required
-              className="w-full rounded-2xl border border-sky-100 bg-sky-50/60 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:bg-white"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="gender" className="mb-1 block text-sm font-medium text-sky-950">
-              Gender *
-            </label>
-            <select
-              id="gender"
-              name="gender"
-              value={formData.gender}
-              onChange={handleInputChange}
-              required
-              className="w-full rounded-2xl border border-sky-100 bg-sky-50/60 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:bg-white"
-            >
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="phoneNumber" className="mb-1 block text-sm font-medium text-sky-950">
-              Phone Number *
-            </label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleInputChange}
-              placeholder="10-digit phone number"
-              required
-              className="w-full rounded-2xl border border-sky-100 bg-sky-50/60 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:bg-white"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="city" className="mb-1 block text-sm font-medium text-sky-950">
-              City *
-            </label>
-            <input
-              type="text"
-              id="city"
-              name="city"
-              value={formData.city}
-              onChange={handleInputChange}
-              placeholder="Your city"
-              required
-              className="w-full rounded-2xl border border-sky-100 bg-sky-50/60 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:bg-white"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="preferredLanguage" className="mb-1 block text-sm font-medium text-sky-950">
-              Preferred Language *
-            </label>
-            <select
-              id="preferredLanguage"
-              name="preferredLanguage"
-              value={formData.preferredLanguage}
-              onChange={handleInputChange}
-              className="w-full rounded-2xl border border-sky-100 bg-sky-50/60 px-4 py-3 text-slate-800 outline-none transition focus:border-sky-400 focus:bg-white"
-            >
-              <option value="English">English</option>
-              <option value="Hindi">Hindi</option>
-              <option value="Marathi">Marathi</option>
-              <option value="Tamil">Tamil</option>
-              <option value="Telugu">Telugu</option>
-              <option value="Kannada">Kannada</option>
-              <option value="Bengali">Bengali</option>
-              <option value="Gujarati">Gujarati</option>
-            </select>
-          </div>
-
-          <div className="pt-2">
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 px-5 py-3.5 text-base font-semibold text-white shadow-lg shadow-indigo-200 transition hover:brightness-110 disabled:opacity-60"
-            >
-              {loading ? 'Creating Profile...' : 'Complete Registration'}
-            </button>
-          </div>
-
-          <p className="text-center text-sm text-sky-900/80">
-            * All fields are required
-          </p>
-        </form>
-      </div>
+      </main>
     </div>
   );
 }

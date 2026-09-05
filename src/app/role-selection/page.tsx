@@ -3,18 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-
-// This page asks the user: "Are you a patient or a doctor?"
-// Simple meaning: after Google login, we decide which form should open next.
-// If the user already chose a role before, we skip this page and send them to their dashboard.
+import { Header } from '@/components/Header';
 
 export default function RoleSelection() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
 
-  // This effect runs when login status changes.
-  // It protects the page and redirects old users to the correct dashboard.
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/');
@@ -33,23 +28,20 @@ export default function RoleSelection() {
     }
   }, [status, session, router]);
 
-  // If login is still loading, show this until session is ready.
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF7F2]">
         <div className="text-center">
-          <div className="text-lg text-blue-950">Loading...</div>
+          <div className="w-10 h-10 border-3 border-[#D9770E] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-[14px] text-[#555555]">Loading portal credentials...</p>
         </div>
       </div>
     );
   }
 
-  // This function saves the selected role to the database
-  // Then redirects to the appropriate registration page
   const handleRoleSelection = async (role: 'doctor' | 'patient') => {
     setLoading(true);
     try {
-      // Send request to save the role in the database
       const response = await fetch('/api/role-selection', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -57,14 +49,13 @@ export default function RoleSelection() {
       });
 
       if (response.ok) {
-        // Redirect based on selected role
         if (role === 'doctor') {
           router.push('/doctor/registration');
         } else {
           router.push('/patient/registration');
         }
       } else {
-        alert('Error saving role. Please try again.');
+        alert('Error saving role selection. Please try again.');
       }
     } catch (error) {
       alert('Error: ' + error);
@@ -74,81 +65,97 @@ export default function RoleSelection() {
   };
 
   return (
-    <div className="med-shell min-h-screen">
-      <nav className="border-b border-sky-100 bg-white/70 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 shadow-lg shadow-sky-200 text-xl text-white">✚</div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-sky-700 to-indigo-700 bg-clip-text text-transparent">MediConnect</h1>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#1A1A1A]">
+      <Header />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
-        <div className="text-center mb-12">
-          <p className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-medium text-sky-700">Choose your profile</p>
-          <h2 className="mt-6 text-4xl md:text-5xl font-black tracking-tight text-slate-900">
-            Welcome to <span className="bg-gradient-to-r from-sky-600 to-indigo-700 bg-clip-text text-transparent">MediConnect</span>
-          </h2>
-          <p className="mt-4 text-lg text-slate-600">
-            Please tell us who you are so we can personalize your experience
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#E8E2D9] text-[13px] font-medium text-[#0F6B4C] mb-3">
+            <span className="w-2 h-2 rounded-full bg-[#0F6B4C]" />
+            National AYUSH Health Network
+          </div>
+          <h1 className="font-heading text-[32px] font-semibold text-[#1A1A1A]">
+            Select Portal Access Profile
+          </h1>
+          <p className="mt-2 text-[16px] text-[#555555] max-w-xl mx-auto">
+            Choose your designated profile to proceed with clinical pre-consultation intake or practitioner administrative panel.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          <div
-            onClick={() => !loading && handleRoleSelection('doctor')}
-            className={`group relative overflow-hidden rounded-[2rem] border border-sky-100 bg-white/80 p-8 shadow-[0_20px_60px_rgba(14,116,144,0.08)] backdrop-blur-sm transition-all duration-200 ${
-              loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:-translate-y-1 hover:shadow-[0_30px_80px_rgba(59,130,246,0.14)]'
-            }`}
-          >
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-sky-500 to-indigo-600" />
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 text-3xl shadow-lg shadow-sky-200">👨‍⚕️</div>
-            <h3 className="text-3xl font-bold text-slate-900 mb-3">I'm a Doctor</h3>
-            <p className="text-slate-600 leading-7 mb-6">
-              Register your medical practice, get verified, and help patients with their health concerns.
-            </p>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                !loading && handleRoleSelection('doctor');
-              }}
-              disabled={loading}
-              className="w-full rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 px-5 py-3.5 text-base font-semibold text-white shadow-lg shadow-indigo-200 transition hover:brightness-110 disabled:opacity-60"
-            >
-              {loading ? 'Processing...' : 'Continue as Doctor'}
-            </button>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {/* Patient Card */}
           <div
             onClick={() => !loading && handleRoleSelection('patient')}
-            className={`group relative overflow-hidden rounded-[2rem] border border-indigo-100 bg-white/80 p-8 shadow-[0_20px_60px_rgba(79,70,229,0.08)] backdrop-blur-sm transition-all duration-200 ${
-              loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:-translate-y-1 hover:shadow-[0_30px_80px_rgba(99,102,241,0.12)]'
+            className={`card p-8 bg-white border border-[#E8E2D9] rounded-[8px] flex flex-col justify-between transition-all ${
+              loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-[#D9770E]'
             }`}
           >
-            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-indigo-500 to-violet-600" />
-            <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-3xl shadow-lg shadow-indigo-200">👤</div>
-            <h3 className="text-3xl font-bold text-slate-900 mb-3">I'm a Patient</h3>
-            <p className="text-slate-600 leading-7 mb-6">
-              Describe your health concerns and get help from verified doctors.
-            </p>
+            <div>
+              <div className="w-12 h-12 rounded-[8px] bg-[#FAF7F2] border border-[#E8E2D9] flex items-center justify-center text-[#D9770E] mb-5">
+                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <h2 className="font-heading text-[24px] font-semibold text-[#1A1A1A] mb-2">
+                I am a Patient
+              </h2>
+              <p className="text-[14px] text-[#555555] leading-relaxed mb-6">
+                Record your Ayurvedic symptoms, Agni, and lifestyle history for structured pre-consultation case-taking before meeting your doctor.
+              </p>
+            </div>
+
             <button
+              type="button"
+              disabled={loading}
               onClick={(e) => {
                 e.stopPropagation();
-                !loading && handleRoleSelection('patient');
+                handleRoleSelection('patient');
               }}
-              disabled={loading}
-              className="w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-3.5 text-base font-semibold text-white shadow-lg shadow-violet-200 transition hover:brightness-110 disabled:opacity-60"
+              className="btn-primary w-full"
             >
               {loading ? 'Processing...' : 'Continue as Patient'}
             </button>
           </div>
+
+          {/* Doctor Card */}
+          <div
+            onClick={() => !loading && handleRoleSelection('doctor')}
+            className={`card p-8 bg-white border border-[#E8E2D9] rounded-[8px] flex flex-col justify-between transition-all ${
+              loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-[#0F6B4C]'
+            }`}
+          >
+            <div>
+              <div className="w-12 h-12 rounded-[8px] bg-[#E8F5EE] border border-[#B7E1CD] flex items-center justify-center text-[#0F6B4C] mb-5">
+                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h2 className="font-heading text-[24px] font-semibold text-[#1A1A1A] mb-2">
+                I am a Doctor / Practitioner
+              </h2>
+              <p className="text-[14px] text-[#555555] leading-relaxed mb-6">
+                Access incoming patient case files, perform clinical triage assessment, flag critical complaints, and maintain certified records.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              disabled={loading}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRoleSelection('doctor');
+              }}
+              className="btn-secondary w-full"
+            >
+              {loading ? 'Processing...' : 'Continue as Doctor'}
+            </button>
+          </div>
         </div>
 
-        <div className="mt-12 text-center">
-          <p className="text-slate-500">You can change your role later if needed.</p>
+        <div className="mt-10 text-center text-[13px] text-[#555555]">
+          Institutional profiles can be managed or re-assigned under your account settings at any time.
         </div>
-      </div>
+      </main>
     </div>
   );
 }
